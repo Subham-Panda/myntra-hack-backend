@@ -3,13 +3,16 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
-        required: true
+        required: true, 
     },
-    mobilenumber: {
-        type: Number,
+    email: {
+        type: String,   
         required: true,
-        min: 1111111111,
-        max: 9999999999
+        unique: true,
+    },
+    password: {
+        type: String,
+        required: true
     },
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     bag: [{
