@@ -1,12 +1,15 @@
 const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/AppError');
 
 const User = require('../models/userModel');
 
 exports.getUser = catchAsync(async (req, res, next) => {
-    const user = await User.findById(req.params.id).populate('bag').populate('wishlist').populate('orders');
+    // console.log(req.user)
+    const user = await User.findById(req.user.id).populate('bag').populate('wishlist').populate('orders');
     if (!user) {
-        return next(new AppError('No user found', 404));
+        return res.status(404).json({
+            status: 'fail',
+            message: 'User not found'
+        });
     }
     res.status(200).json({
         status: 'success',
@@ -17,11 +20,15 @@ exports.getUser = catchAsync(async (req, res, next) => {
 });
 
 exports.addToBag = catchAsync(async (req, res, next) => {
-    const { userId, productId, selected_size, quantity } = req.body;
+    const { productId, selected_size, quantity } = req.body;
+    const userId = req.user.id;
     const user = await User.findById(userId);
 
     if (!user) {
-        return next(new AppError('No user found', 404));
+        return res.status(404).json({
+            status: 'fail',
+            message: 'User not found'
+        });
     }
 
     user.bag.push({
@@ -41,11 +48,15 @@ exports.addToBag = catchAsync(async (req, res, next) => {
 });
 
 exports.addToWishlist = catchAsync(async (req, res, next) => {
-    const { userId, productId } = req.body;
+    const { productId } = req.body;
+    const userId = req.user.id;
     const user = await User.findById(userId);
 
     if (!user) {
-        return next(new AppError('No user found', 404));
+        return res.status(404).json({
+            status: 'fail',
+            message: 'User not found'
+        });
     }
 
     user.bag.push(productId);
@@ -61,11 +72,15 @@ exports.addToWishlist = catchAsync(async (req, res, next) => {
 });
 
 exports.updateBagItem = catchAsync(async (req, res, next) => {
-    const { userId, productId, selected_size, quantity } = req.body;
+    const { productId, selected_size, quantity } = req.body;
+    const userId = req.user.id;
     const user = await User.findById(userId);
 
     if (!user) {
-        return next(new AppError('No user found', 404));
+        return res.status(404).json({
+            status: 'fail',
+            message: 'User not found'
+        });
     }
 
     user.bag.forEach((item, index) => {
@@ -86,11 +101,15 @@ exports.updateBagItem = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteBagItem = catchAsync(async (req, res, next) => {
-    const { userId, productId, selected_size } = req.body;
+    const { productId, selected_size } = req.body;
+    const userId = req.user.id;
     const user = await User.findById(userId);
 
     if (!user) {
-        return next(new AppError('No user found', 404));
+        return res.status(404).json({
+            status: 'fail',
+            message: 'User not found'
+        });
     }
 
     user.bag.forEach((item, index) => {
@@ -111,11 +130,15 @@ exports.deleteBagItem = catchAsync(async (req, res, next) => {
 
 
 exports.deleteWishlistItem = catchAsync(async (req, res, next) => {
-    const {  productId} = req.body;
+    const { productId} = req.body;
+    const userId = req.user.id;
     const user = await User.findById(userId);
 
     if (!user) {
-        return next(new AppError('No user found', 404));
+        return res.status(404).json({
+            status: 'fail',
+            message: 'User not found'
+        });
     }
 
     user.wishlist.forEach((item, index) => {
@@ -135,12 +158,14 @@ exports.deleteWishlistItem = catchAsync(async (req, res, next) => {
 });
 
 exports.placeOrder = catchAsync(async (req, res, next) => {
-    const { userId } = req.body;
-
+    const userId = req.user.id;
     const user = await User.findById(userId);
 
     if (!user) {
-        return next(new AppError('No user found', 404));
+        return res.status(404).json({
+            status: 'fail',
+            message: 'User not found'
+        });
     }
 
     user.bag.forEach(async (item) => {

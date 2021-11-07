@@ -1,5 +1,4 @@
 const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/AppError');
 
 const Product = require('../models/productModel');
 
