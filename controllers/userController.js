@@ -4,7 +4,7 @@ const User = require('../models/userModel');
 
 exports.getUser = catchAsync(async (req, res, next) => {
     // console.log(req.user)
-    const user = await User.findById(req.user.id).populate('bag').populate('wishlist').populate('orders');
+    const user = await User.findById(req.user.id).populate('bag').populate('wishlist').populate('orders').populate('followers').populate('posts');
     if (!user) {
         return res.status(404).json({
             status: 'fail',
@@ -130,7 +130,7 @@ exports.deleteBagItem = catchAsync(async (req, res, next) => {
 
 
 exports.deleteWishlistItem = catchAsync(async (req, res, next) => {
-    const { productId} = req.body;
+    const { productId } = req.body;
     const userId = req.user.id;
     const user = await User.findById(userId);
 
@@ -206,6 +206,20 @@ exports.toggleFollow = catchAsync(async (req, res, next) => {
     if (flag === 0) {
         user.followers.push(req.user.id);
     }
+
+    flag = 0;
+    const followingUser = await User.findById(req.user.id);
+    followingUser.following.find((item) => {
+        if (item === userId) {
+            followingUser.following.splice(followingUser.following.indexOf(item), 1);
+        }
+    });
+
+    if (flag === 0) {
+        followingUser.following.push(userId);
+    }
+
+
 
     await user.save();
 
