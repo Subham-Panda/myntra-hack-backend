@@ -183,3 +183,127 @@ exports.placeOrder = catchAsync(async (req, res, next) => {
         },
     });
 });
+
+exports.toggleFollow = catchAsync(async (req, res, next) => {
+    const { userId } = req.body;
+    const user = await User.findById(userId);
+
+    if (!user) {
+        return res.status(404).json({
+            status: 'fail',
+            message: 'User not found'
+        });
+    }
+
+    let flag = 0;
+    user.followers.find((item) => {
+        if (item === req.user.id) {
+            user.followers.splice(user.followers.indexOf(item), 1);
+            flag = 1;
+        }
+    });
+
+    if (flag === 0) {
+        user.followers.push(req.user.id);
+    }
+
+    await user.save();
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user,
+        },
+    });
+});
+
+exports.toggleLike = catchAsync(async (req, res, next) => {
+    const { postId } = req.body;
+    const userId = req.user.id;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+        return res.status(404).json({
+            status: 'fail',
+            message: 'Post not found'
+        });
+    }
+
+    let flag = 0;
+    post.likes.find((item) => {
+        if (item === userId) {
+            post.likes.splice(post.likes.indexOf(item), 1);
+            flag = 1;
+        }
+    });
+
+    if (flag === 0) {
+        post.likes.push(userId);
+    }
+
+    await user.save();
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            post
+        },
+    });
+});
+
+exports.addComment = catchAsync(async (req, res, next) => {
+    const { postId, comment } = req.body;
+    const userId = req.user.id;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+        return res.status(404).json({
+            status: 'fail',
+            message: 'Post not found'
+        });
+    }
+
+    post.comments.push({
+        user: userId,
+        comment,
+    });
+
+    await post.save();
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            post
+        },
+    });
+});
+
+exports.placeNewPost = catchAsync(async (req, res, next) => {
+    const { caption, imagelink } = req.body;
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+        return res.status(404).json({
+            status: 'fail',
+            message: 'User not found'
+        });
+    }
+
+    const post = await Post.create({
+        caption,
+        imagelink,
+        user: userId,
+    });
+
+    user.posts.push(post._id);
+
+    await user.save();
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user,
+        },
+    });
+});

@@ -26,7 +26,9 @@ const userSchema = new mongoose.Schema({
         selected_size: { type: String, required: true },
         quantity: { type: Number, required: true },
         order_date: { type: Date, default: Date.now }
-    }]
+    }],
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
 })
 
 userSchema.pre('save', async function (next) {

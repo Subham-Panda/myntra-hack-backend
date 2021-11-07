@@ -3,6 +3,8 @@ const cors = require('cors');
 
 const userRouter = require('./routes/userRoutes');
 const productRouter = require('./routes/productRoutes');
+const postRouter = require('./routes/postRoutes');
+
 
 //Start express app
 const app = express();
@@ -17,7 +19,9 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 //ROUTES
 app.use('/users', userRouter);
-app.use('/product',productRouter);
+app.use('/products',productRouter);
+app.use('/posts',postRouter);
+
 
 app.all('*', (req, res, next) => {
     res.status(404).json({
